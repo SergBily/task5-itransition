@@ -8,6 +8,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import { Button, TextField } from '@mui/material';
 import Slider from '@mui/material/Slider';
 import ButtonsRegion from './ButtonsRegion';
+import RandomData from '../services/RandomData';
+import { ResponseRandomData } from '../models/responseRandomData';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -50,12 +52,18 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-const ToolbarApp = () => {
-  const [errorsRange, setErrorsRange] = useState<number>(0);
+interface ToolbarAppProps {
+  getFakerData: (d: ResponseRandomData[]) => void
+}
+
+const ToolbarApp = ({ getFakerData }: ToolbarAppProps) => {
+  const [errorRate, seterrorRate] = useState<number>(0);
+
   const [seedValue, setSeedValue] = useState<string>('');
 
   const [region, setRegion] = useState<string>('en');
-  console.log(region, 1);
+
+  const [currentPage, setcurrentPage] = useState<number>(1);
 
   const onChangeRegion = (r: string): void => setRegion(r);
 
@@ -64,11 +72,15 @@ const ToolbarApp = () => {
   };
 
   const changeMistakeHandler = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setErrorsRange(+e.target.value);
+    seterrorRate(+e.target.value);
   };
 
-  const getSeedValue = (): void => {
-    console.log(seedValue);
+  const getSeedValue = async (): Promise <void> => {
+    const fakerData = await RandomData.getRandomData({
+      seed: seedValue, errorRate, region, page: currentPage,
+    });
+    getFakerData(fakerData);
+    setcurrentPage(1);
   };
 
   const changeRangeMistakesHandler = (
@@ -77,10 +89,8 @@ const ToolbarApp = () => {
     activeThumb: number,
   ): void => {
     console.log(event, value, activeThumb);
-    setErrorsRange(value as number);
+    seterrorRate(value as number);
   };
-
-  console.log(errorsRange);
 
   const valuetext = (value: number) => `${value}°C`;
 
@@ -110,7 +120,7 @@ const ToolbarApp = () => {
               sx={{
                 display: { xs: 'none', sm: 'block' }, marginLeft: '15px', color: 'white',
               }}
-              value={errorsRange === 0 ? '' : errorsRange}
+              value={errorRate === 0 ? '' : errorRate}
               onChange={changeMistakeHandler}
             />
             <Slider
@@ -123,7 +133,7 @@ const ToolbarApp = () => {
               min={0}
               max={10}
               sx={{ width: '200px', padding: 0 }}
-              value={errorsRange}
+              value={errorRate}
               onChange={changeRangeMistakesHandler}
             />
           </div>
