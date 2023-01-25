@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -8,7 +8,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { Button, TextField } from '@mui/material';
 import Slider from '@mui/material/Slider';
 import ButtonsRegion from './ButtonsRegion';
-import RandomData from '../services/RandomData';
+import RandomData from '../services/fakesData';
 import { ResponseRandomData } from '../models/responseRandomData';
 
 const Search = styled('div')(({ theme }) => ({
@@ -53,34 +53,52 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 interface ToolbarAppProps {
-  getFakerData: (d: ResponseRandomData[]) => void
+  setFakerData: (d: ResponseRandomData[]) => void
+  fakerData: ResponseRandomData[],
+  bottomInView: boolean
 }
 
-const ToolbarApp = ({ getFakerData }: ToolbarAppProps) => {
-  const [errorRate, seterrorRate] = useState<number>(0);
+const ToolbarApp = ({ setFakerData, fakerData, bottomInView }: ToolbarAppProps) => {
+  const [errorRate, setErrorRate] = useState<number>(0);
 
-  const [seedValue, setSeedValue] = useState<string>('');
+  const [currentSeedValue, setSeedValue] = useState<string>('');
 
   const [region, setRegion] = useState<string>('en');
 
-  const [currentPage, setcurrentPage] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const onChangeRegion = (r: string): void => setRegion(r);
+
+  useEffect(() => {
+    if (bottomInView && fakerData.length > 0) {
+      RandomData.getRandomData({
+        seed: currentSeedValue, errorRate, region, page: currentPage,
+      })
+        .then((newFakerData) => setFakerData(newFakerData));
+      setCurrentPage((preState) => preState + 1);
+    }
+  }, [bottomInView]);
 
   const changeSeedHandler = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setSeedValue(e.target.value);
   };
 
   const changeMistakeHandler = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    seterrorRate(+e.target.value);
+    setErrorRate(+e.target.value);
   };
 
-  const getSeedValue = async (): Promise <void> => {
-    const fakerData = await RandomData.getRandomData({
-      seed: seedValue, errorRate, region, page: currentPage,
+  const resetToDefaultState = () => {
+    setCurrentPage(1);
+    setFakerData([]);
+  };
+
+  const getSeedValue = async (): Promise<void> => {
+    resetToDefaultState();
+    const newFakerData = await RandomData.getRandomData({
+      seed: currentSeedValue, errorRate, region, page: 1,
     });
-    getFakerData(fakerData);
-    setcurrentPage(1);
+    setFakerData(newFakerData);
+    setCurrentPage(2);
   };
 
   const changeRangeMistakesHandler = (
@@ -88,8 +106,8 @@ const ToolbarApp = ({ getFakerData }: ToolbarAppProps) => {
     value: number | number[],
     activeThumb: number,
   ): void => {
-    console.log(event, value, activeThumb);
-    seterrorRate(value as number);
+    const v = [value, event, activeThumb];
+    setErrorRate(v[0] as number);
   };
 
   const valuetext = (value: number) => `${value}°C`;
@@ -136,6 +154,7 @@ const ToolbarApp = ({ getFakerData }: ToolbarAppProps) => {
               value={errorRate}
               onChange={changeRangeMistakesHandler}
             />
+
           </div>
           <div style={{ display: 'flex', width: '350px', justifyContent: 'space-between' }}>
             <Search>
@@ -146,7 +165,7 @@ const ToolbarApp = ({ getFakerData }: ToolbarAppProps) => {
                 sx={{ color: 'black' }}
                 placeholder="Search…"
                 inputProps={{ 'aria-label': 'search' }}
-                value={seedValue}
+                value={currentSeedValue}
                 onChange={changeSeedHandler}
               />
             </Search>

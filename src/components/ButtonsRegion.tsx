@@ -9,7 +9,11 @@ type ButtonsRegionProps = {
 
 const ButtonsRegion = ({ onChangeRegion }: ButtonsRegionProps) => {
   const onChange = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    onChangeRegion(((e.target as HTMLButtonElement).dataset.region) as string);
+    const buttonsRegion = document.querySelectorAll('.region__btn') as NodeListOf<HTMLButtonElement>;
+    buttonsRegion.forEach((t) => t.classList.remove('activ__btn'));
+    const { target } = e;
+    onChangeRegion(((target as HTMLButtonElement).dataset.region) as string);
+    (target as HTMLButtonElement).classList.add('activ__btn');
   };
 
   return (
@@ -24,7 +28,7 @@ const ButtonsRegion = ({ onChangeRegion }: ButtonsRegionProps) => {
       }}
     >
       <ButtonGroup className="region__btn-group" variant="outlined" aria-label="outlined button group">
-        <Button className="region__btn" data-region="en" onClick={onChange}>USA</Button>
+        <Button className="region__btn activ__btn" data-region="en" onClick={onChange}>USA</Button>
         <Button className="region__btn" data-region="de" onClick={onChange}>Germany</Button>
         <Button className="region__btn" data-region="fr" onClick={onChange}>France</Button>
       </ButtonGroup>
