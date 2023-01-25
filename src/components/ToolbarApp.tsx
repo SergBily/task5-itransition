@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { styled, alpha } from '@mui/material/styles';
+import {
+  styled, alpha, createTheme, ThemeProvider,
+} from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -10,6 +12,31 @@ import Slider from '@mui/material/Slider';
 import ButtonsRegion from './ButtonsRegion';
 import RandomData from '../services/fakesData';
 import { ResponseRandomData } from '../models/responseRandomData';
+
+const themes = createTheme({
+  palette: {
+    neutral: {
+      main: '#dd66e09d',
+      contrastText: '#fff',
+    },
+  },
+});
+
+declare module '@mui/material/styles' {
+  interface Palette {
+    neutral: Palette['primary'];
+  }
+
+  interface PaletteOptions {
+    neutral?: PaletteOptions['primary'];
+  }
+}
+
+declare module '@mui/material/Slider' {
+  interface SliderPropsColorOverrides {
+    neutral: true;
+  }
+}
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -141,20 +168,22 @@ const ToolbarApp = ({ setFakerData, fakerData, bottomInView }: ToolbarAppProps) 
               value={errorRate === 0 ? '' : errorRate}
               onChange={changeMistakeHandler}
             />
-            <Slider
-              aria-label="Temperature"
-              defaultValue={0}
-              getAriaValueText={valuetext}
-              valueLabelDisplay="auto"
-              step={0.5}
-              marks
-              min={0}
-              max={10}
-              sx={{ width: '200px', padding: 0 }}
-              value={errorRate}
-              onChange={changeRangeMistakesHandler}
-            />
-
+            <ThemeProvider theme={themes}>
+              <Slider
+                aria-label="Temperature"
+                defaultValue={0}
+                getAriaValueText={valuetext}
+                valueLabelDisplay="auto"
+                step={0.5}
+                marks
+                min={0}
+                max={10}
+                sx={{ width: '200px', padding: 0 }}
+                value={errorRate}
+                color="neutral"
+                onChange={changeRangeMistakesHandler}
+              />
+            </ThemeProvider>
           </div>
           <div style={{ display: 'flex', width: '350px', justifyContent: 'space-between' }}>
             <Search>
