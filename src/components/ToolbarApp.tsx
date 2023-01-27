@@ -6,7 +6,6 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import InputBase from '@mui/material/InputBase';
-import SearchIcon from '@mui/icons-material/Search';
 import { Button, TextField } from '@mui/material';
 import Slider from '@mui/material/Slider';
 import ButtonsRegion from './ButtonsRegion';
@@ -51,16 +50,6 @@ const Search = styled('div')(({ theme }) => ({
     marginLeft: theme.spacing(1),
     width: 'auto',
   },
-}));
-
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: '100%',
-  position: 'absolute',
-  pointerEvents: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
@@ -187,12 +176,9 @@ const ToolbarApp = ({ setFakerData, fakerData, bottomInView }: ToolbarAppProps) 
           </div>
           <div style={{ display: 'flex', width: '350px', justifyContent: 'space-between' }}>
             <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
               <StyledInputBase
                 sx={{ color: 'black' }}
-                placeholder="Search…"
+                placeholder="seed…"
                 inputProps={{ 'aria-label': 'search' }}
                 value={currentSeedValue}
                 onChange={changeSeedHandler}
